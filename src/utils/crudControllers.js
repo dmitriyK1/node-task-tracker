@@ -7,25 +7,23 @@ export const getMany = (
   model,
 ) => async (req, res) => {
   try {
-    const result = await model.findAll({
+    const entities = await model.findAll({
       where: req.query.filter,
       order: getSortConfig(req.query.sort),
     });
 
-    res.status(HTTP.OK).json(result);
+    res.status(HTTP.OK).json(entities);
   } catch {
     res.status(HTTP.INTERNAL_SERVER_ERROR).send();
   }
 };
 
-export const getOne = (model, additionalParams = { idKey: 'id' }) => async (req, res) => {
+export const getOne = (model) => async (req, res) => {
   try {
-    const result = await model.findOne({
-      where: { [additionalParams.idKey]: req.params.id },
-    });
+    const entity = await model.findByPk(req.params.id);
 
-    if (result) {
-      res.status(HTTP.OK).json(result);
+    if (entity) {
+      res.status(HTTP.OK).json(entity);
     } else {
       res.status(HTTP.NOT_FOUND).send();
     }
@@ -36,35 +34,31 @@ export const getOne = (model, additionalParams = { idKey: 'id' }) => async (req,
 
 export const createOne = (model) => async (req, res) => {
   try {
-    const result = await model.create(req.body);
+    const entity = await model.create(req.body);
 
-    res.status(HTTP.CREATED).send(result);
+    res.status(HTTP.CREATED).send(entity);
   } catch {
     res.status(HTTP.INTERNAL_SERVER_ERROR).send();
   }
 };
 
-export const updateOne = (model, additionalParams = { idKey: 'id' }) => async (req, res) => {
+export const updateOne = (model) => async (req, res) => {
   try {
-    await model.update(req.body, {
-      where: { [additionalParams.idKey]: req.params.id },
-    });
+    const entity = await model.findByPk(req.params.id);
 
+    await entity.update(req.body);
     res.status(HTTP.OK).send();
   } catch {
     res.status(HTTP.INTERNAL_SERVER_ERROR).send();
   }
 };
 
-export const removeOne = (model, additionalParams = { idKey: 'id' }) => async (req, res) => {
+export const removeOne = (model) => async (req, res) => {
   try {
-    const deletedCount = await model.destroy({
-      where: {
-        [additionalParams.idKey]: req.params.id,
-      },
-    });
+    const entity = await model.findByPk(req.params.id);
 
-    if (deletedCount) {
+    if (entity) {
+      await entity.destroy();
       res.status(HTTP.NO_CONTENT).send();
     } else {
       res.status(HTTP.NOT_FOUND).send();
@@ -74,10 +68,10 @@ export const removeOne = (model, additionalParams = { idKey: 'id' }) => async (r
   }
 };
 
-export const crudControllers = (model, additionalParams) => mapValues({
+export const crudControllers = (model) => mapValues({
   removeOne,
   updateOne,
   getMany,
   getOne,
   createOne,
-}, (controller) => controller(model, additionalParams));
+}, (controller) => controller(model));

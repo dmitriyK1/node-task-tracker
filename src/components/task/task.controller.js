@@ -36,7 +36,7 @@ const updateTask = async (req, res) => {
       return res.status(HTTP.NOT_FOUND).send();
     }
 
-    await task.update({ ...req.body });
+    await task.update(req.body);
 
     res.status(HTTP.OK).send();
   } catch {

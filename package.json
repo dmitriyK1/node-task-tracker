@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
+    "bootstrap": "npm install; npx sequelize db:create; npx sequelize db:migrate",
     "dev": "nodemon -r esm src/server.js",
     "start": "node -r esm src/server.js"
   },
